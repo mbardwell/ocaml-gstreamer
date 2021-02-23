@@ -93,9 +93,8 @@ CAMLprim value ocaml_gstreamer_init_check(value _argv) {
 
   caml_release_runtime_system();
   CAMLlocal2(ans, _err);
-  gboolean check = FALSE;
   GError *err = NULL;
-  check = gst_init_check(&argc, &argv, &err);
+  gboolean check = gst_init_check(&argc, &argv, &err);
   if (err) {
     _err = caml_copy_string(err->message);
     g_error_free(err);
@@ -107,6 +106,12 @@ CAMLprim value ocaml_gstreamer_init_check(value _argv) {
   caml_acquire_runtime_system();
 
   CAMLreturn(Val_bool(check));
+}
+
+CAMLprim value ocaml_gstreamer_gst_is_initialized() {
+  CAMLparam0();
+  gboolean is_initialized = gst_is_initialized();
+  CAMLreturn(Val_bool(is_initialized));
 }
 
 CAMLprim value ocaml_gstreamer_deinit(value unit) {

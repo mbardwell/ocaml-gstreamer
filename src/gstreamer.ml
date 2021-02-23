@@ -13,7 +13,7 @@ let () =
 
 external init : string array option -> unit = "ocaml_gstreamer_init"
 external init_check : string array option -> bool = "ocaml_gstreamer_init_check"
-
+external gst_is_initialized : unit -> bool = "ocaml_gstreamer_gst_is_initialized"
 let init ?argv () = init argv
 let init_check ?argv () = init_check argv
 

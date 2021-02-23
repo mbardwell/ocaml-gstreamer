@@ -17,9 +17,12 @@ val init : ?argv:string array -> unit -> unit
     should be called before any other GStreamer function.
 
     This function will return FALSE if GStreamer could not be initialized for some reason.
-    If you want your program to fail fatally, use gst_init instead.
-     *)
+    If you want your program to fail fatally, use gst_init instead. *)
 val init_check : ?argv:string array -> unit -> bool
+
+(** Use this function to check if GStreamer has been initialized
+    with gst_init or gst_init_check. *)
+val gst_is_initialized : unit -> bool
 
 (** Uninitialize GStreamer. This function does not normally need to be called
     excepting when debugging memory. *)
