@@ -74,6 +74,41 @@ CAMLprim value ocaml_gstreamer_init(value _argv) {
   CAMLreturn(Val_unit);
 }
 
+CAMLprim value ocaml_gstreamer_init_check(value _argv) {
+  CAMLparam1(_argv);
+  char **argv = NULL;
+  int argc = 0;
+  int len, i;
+
+  if (Is_block(_argv)) {
+    _argv = Field(_argv, 0);
+    argc = Wosize_val(_argv);
+    argv = malloc(argc * sizeof(char *));
+    for (i = 0; i < argc; i++) {
+      len = caml_string_length(Field(_argv, i));
+      argv[i] = malloc(len + 1);
+      memcpy(argv[i], String_val(Field(_argv, i)), len + 1);
+    }
+  }
+
+  caml_release_runtime_system();
+  CAMLlocal2(ans, _err);
+  gboolean check = FALSE;
+  GError *err = NULL;
+  check = gst_init_check(&argc, &argv, &err);
+  if (err) {
+    _err = caml_copy_string(err->message);
+    g_error_free(err);
+    caml_raise_with_arg(*caml_named_value("gstreamer_exn_error"), _err);
+  }
+  for (i = 0; i < argc; i++)
+    free(argv[i]);
+  free(argv);
+  caml_acquire_runtime_system();
+
+  CAMLreturn(Val_bool(check));
+}
+
 CAMLprim value ocaml_gstreamer_deinit(value unit) {
   CAMLparam0();
 

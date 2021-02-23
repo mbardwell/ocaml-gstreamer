@@ -12,6 +12,15 @@ exception End_of_stream
     other GStreamer function. *)
 val init : ?argv:string array -> unit -> unit
 
+(** Initializes the GStreamer library, setting up internal path lists,
+    registering built-in elements, and loading standard plugins. This function
+    should be called before any other GStreamer function.
+
+    This function will return FALSE if GStreamer could not be initialized for some reason.
+    If you want your program to fail fatally, use gst_init instead.
+     *)
+val init_check : ?argv:string array -> unit -> bool
+
 (** Uninitialize GStreamer. This function does not normally need to be called
     excepting when debugging memory. *)
 val deinit : unit -> unit

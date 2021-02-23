@@ -12,8 +12,10 @@ let () =
   Callback.register_exception "gstreamer_exn_eos" End_of_stream
 
 external init : string array option -> unit = "ocaml_gstreamer_init"
+external init_check : string array option -> bool = "ocaml_gstreamer_init_check"
 
 let init ?argv () = init argv
+let init_check ?argv () = init_check argv
 
 external deinit : unit -> unit = "ocaml_gstreamer_deinit"
 external version : unit -> int * int * int * int = "ocaml_gstreamer_version"
