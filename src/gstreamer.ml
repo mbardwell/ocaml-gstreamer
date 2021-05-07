@@ -340,6 +340,10 @@ module Bus = struct
     parse_msg
       (timed_pop_filtered bus ?timeout
          (Array.of_list (List.map type_of_mesage_type filter)))
+
+  external lwt_timed_pop_filtered_job : t -> Int64.t -> unit Lwt_unix.job = "lwt_bus_timed_pop_filtered"
+
+  let lwt_timed_pop_filtered bus timeout_ns = Lwt_unix.run_job (lwt_timed_pop_filtered_job bus timeout_ns)
 end
 
 module Bin = struct

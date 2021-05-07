@@ -6,6 +6,9 @@
 #include <caml/memory.h>
 #include <caml/mlvalues.h>
 #include <caml/threads.h>
+#include <errno.h>
+#include "lwt_config.h"
+#include "lwt_unix.h"
 
 #ifndef Bytes_val
 #define Bytes_val String_val
@@ -1544,4 +1547,35 @@ CAMLprim value ocaml_gstreamer_tag_setter_add_tag(value _t, value _mode,
   gst_tag_setter_add_tags(TagSetter_val(_t), merge_mode_of_int(_mode),
                           String_val(_name), String_val(_v), NULL);
   return Val_unit;
+}
+
+
+struct job_timed_pop_filtered {
+    struct lwt_unix_job job;
+    GstMessage *result;
+    int error_code;
+    GstBus *bus;
+    int64_t timeout_ns;
+};
+
+static void worker_timed_pop_filtered(struct job_timed_pop_filtered *job)
+{
+  GstMessage *msg = gst_bus_timed_pop_filtered(job->bus, (GstClockTime)job->timeout_ns, GST_MESSAGE_EOS);
+  job->result = msg;
+  job->error_code = errno;
+}
+
+static value result_timed_pop_filtered(struct job_timed_pop_filtered *job)
+{
+  LWT_UNIX_CHECK_JOB(job, !GST_IS_MESSAGE(job->result), "timed_pop_filtered");
+  lwt_unix_free_job(&job->job);
+  return Val_unit;
+}
+
+CAMLprim value lwt_bus_timed_pop_filtered(value _bus, value _timeout_ns)
+{
+  LWT_UNIX_INIT_JOB(job, timed_pop_filtered, 0);
+  job->bus = Bus_val(_bus);
+  job->timeout_ns = Int64_val(_timeout_ns);
+  return lwt_unix_alloc_job(&(job->job));
 }

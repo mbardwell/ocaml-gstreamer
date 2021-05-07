@@ -2,7 +2,7 @@
  (name gstreamer)
  (public_name gstreamer)
  (synopsis "OCaml bindings to gstreamer")
- (libraries threads)
+ (libraries threads lwt lwt.unix)
  (foreign_stubs
   (language c)
   (names gstreamer_stubs)
