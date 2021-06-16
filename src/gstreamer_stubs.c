@@ -1568,9 +1568,12 @@ static void worker_timed_pop_filtered(struct job_timed_pop_filtered *job)
 
 static value result_timed_pop_filtered(struct job_timed_pop_filtered *job)
 {
+  CAMLparam0();
+  CAMLlocal1(ans);
   LWT_UNIX_CHECK_JOB(job, !GST_IS_MESSAGE(job->result), "timed_pop_filtered");
+  value_of_message(job->result, ans);
   lwt_unix_free_job(&job->job);
-  return Val_unit;
+  return ans;
 }
 
 CAMLprim value lwt_bus_timed_pop_filtered(value _bus, value _timeout_ns, value _filter)
@@ -1583,6 +1586,6 @@ CAMLprim value lwt_bus_timed_pop_filtered(value _bus, value _timeout_ns, value _
   job->timeout_ns = timeout_ns;
   job->filter = 0;
   for (int i = 0; i < Wosize_val(_filter); i++)
-    job->filter |= message_type_of_int(Int_val(Field(_filter, i))); 
+    job->filter |= message_type_of_int(Int_val(Field(_filter, i)));
   return lwt_unix_alloc_job(&(job->job));
 }
