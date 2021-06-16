@@ -209,7 +209,7 @@ module Bus : sig
   val of_element : Element.t -> t
   val pop_filtered : t -> message_type list -> message option
   val timed_pop_filtered : t -> ?timeout:Int64.t -> message_type list -> message
-  val lwt_timed_pop_filtered : t -> Int64.t -> unit Lwt.t
+  val lwt_timed_pop_filtered : t -> Int64.t -> message_type list -> unit Lwt.t
 end
 
 (** Bins. *)

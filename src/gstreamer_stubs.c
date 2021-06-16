@@ -1556,11 +1556,12 @@ struct job_timed_pop_filtered {
     int error_code;
     GstBus *bus;
     int64_t timeout_ns;
+    GstMessageType filter;
 };
 
 static void worker_timed_pop_filtered(struct job_timed_pop_filtered *job)
 {
-  GstMessage *msg = gst_bus_timed_pop_filtered(job->bus, (GstClockTime)job->timeout_ns, GST_MESSAGE_EOS);
+  GstMessage *msg = gst_bus_timed_pop_filtered(job->bus, (GstClockTime)job->timeout_ns, job->filter);
   job->result = msg;
   job->error_code = errno;
 }
@@ -1572,10 +1573,13 @@ static value result_timed_pop_filtered(struct job_timed_pop_filtered *job)
   return Val_unit;
 }
 
-CAMLprim value lwt_bus_timed_pop_filtered(value _bus, value _timeout_ns)
+CAMLprim value lwt_bus_timed_pop_filtered(value _bus, value _timeout_ns, value _filter)
 {
   LWT_UNIX_INIT_JOB(job, timed_pop_filtered, 0);
   job->bus = Bus_val(_bus);
   job->timeout_ns = Int64_val(_timeout_ns);
+  job->filter = 0;
+  for (int i = 0; i < Wosize_val(_filter); i++)
+    job->filter |= message_type_of_int(Int_val(Field(_filter, i))); 
   return lwt_unix_alloc_job(&(job->job));
 }
