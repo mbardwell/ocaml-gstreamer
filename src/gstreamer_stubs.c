@@ -1577,7 +1577,10 @@ CAMLprim value lwt_bus_timed_pop_filtered(value _bus, value _timeout_ns, value _
 {
   LWT_UNIX_INIT_JOB(job, timed_pop_filtered, 0);
   job->bus = Bus_val(_bus);
-  job->timeout_ns = Int64_val(_timeout_ns);
+  int64_t timeout_ns = Int64_val(_timeout_ns);
+  if (timeout_ns < 1000000000)
+    printf("DEBUG: lwt_bus_timed_pop_filtered: are you sure you want a sub-second timeout? Value: %ld s\n", timeout_ns/1000000000);
+  job->timeout_ns = timeout_ns;
   job->filter = 0;
   for (int i = 0; i < Wosize_val(_filter); i++)
     job->filter |= message_type_of_int(Int_val(Field(_filter, i))); 
